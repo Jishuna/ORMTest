@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'net.minecrell.plugin-yml.bukkit' version '0.5.3'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+dependencies {
+    compileOnly("org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT")
+    implementation (group: 'me.jishuna', name: 'jishlib', version: '2.0.0-SNAPSHOT')
+    implementation 'org.xerial:sqlite-jdbc:3.45.0.0'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    bukkitLibrary "net.kyori:adventure-platform-bukkit:4.3.2"
+    bukkitLibrary "net.kyori:adventure-text-minimessage:4.15.0"
+    bukkitLibrary group: 'com.zaxxer', name: 'HikariCP', version: '5.0.1'
+}
+
+shadowJar {
+    relocate 'me.jishuna.jishlib', 'me.jishuna.waystones.libs.jishlib'
+}
+
+bukkit {
+    name = 'Waystones'
+    version = rootProject.version
+    main = 'me.jishuna.waystones.Waystones'
+    apiVersion = '1.19'
+    authors = ['Jishuna']
+    load = 'STARTUP'
+
+    commands {
+        waystones {
+            description = 'Base plugin command'
+            permission = 'waystones.command'
+        }
+    }
+
+    permissions {
+        'waystones.command' {
+            description = 'Allows the usage of /waystones'
+            setDefault('TRUE')
+        }
+        'waystones.command.reload' {
+            description = 'Allows the usage of /waystones reload'
+            setDefault('OP')
+        }
+        'waystones.command.setowner' {
+            description = 'Allows the usage of /waystones setowner'
+            setDefault('OP')
+        }
+        'waystones.command.remove' {
+            description = 'Allows the usage of /waystones remove'
+            setDefault('OP')
+        }
+        'waystones.command.removenear' {
+            description = 'Allows the usage of /waystones removenear'
+            setDefault('OP')
+        }
+        'waystones.command.admin' {
+            children = [
+                'waystones.command.reload',
+                'waystones.command.setowner',
+                'waystones.command.remove',
+                'waystones.command.removenear'
+            ]
+            description = 'Allows the usage of all waystones admin commands'
+        }
+    }
+}
+
+build {
+    dependsOn shadowJar
+}
